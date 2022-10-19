@@ -1,0 +1,54 @@
+-- Essa consulta utiliza o sistema PIPELINE AGREGATE
+
+db.estados.aggregate([
+	{ $project: {nome: 1, "cidades.nome": 1, _id: 0} }
+])
+
+db.estados.agregate([
+	{ $project: {populacao: {$sum: "$cidades.populacao"}, sigla: 1, _id: 0}},
+	{ $group: {_id: null, populacaoTotal: {$sum: "populacao"}} },
+	{ $project: { _id: 0, populacaoTotal: 1 } },
+])
+
+db.estados.agreagate([
+	{ $match: {"cidades.nome": "Sorocaba"} },
+	{ $unwind: "$cidades"},
+	{ $match: {"cidades.nome": "Sorocaba"} },
+	{ $project: {_id: "$cidades._id"} }
+]).pretty()
+
+----------------------------------//
+
+-- Agora esse comando abaixo efetua update no registro
+db.estados.update({sigla: "SP"},{$set: {populacao: 45340000}})
+
+-- O comando abaixo faz upodate dentro de um elemento em um array
+db.estados.update({sigla: "AL"},{$set: {cidades: [{nome: "Sergipe"}]}}) -- Use essa opção para quando o array não tiver nenhum elemento
+
+-- O comando abaixo faz o update dentro de um array
+db.estados.update([
+	{sigla: "SP"},
+	{$push: {cidades: {nome: "Santos", populacao: 433966}}}
+])
+
+-- A consulta abaixo retorna apenas os registros que possuem um valor
+db.estados.find({populacao: {$exists: true}}, {_id: 0, nome: 1})
+
+----------------------------------//
+
+-- OS COMANDOS ABAIXO FAZEM  REMOÇÃO DOS REGISTROS
+db.estados.count() -- Essa consulta retorna 4 elementos na situação atual do banco
+
+db.estados.remove({sigla: "AC"})
+
+-- Então fazendo a consulta de volta, retorna apenas 3 registros
+
+-- O comando abaixo remove o registro passando parametros
+db.estatos.remove({populacao: {$exists: false}}, 1) -- nesse comando remove o estado onde a população não existe
+db.estatos.remove({populacao: {$exists: true}}, 1) -- nesse comando remove o estado onde a população existe, o número 1 indica a quantidade de registros a serem removidos
+
+-- O comando abaixo faz a atualização do registro do RJ
+db.estados.update({sigla: "RJ"}, {$set: {populacao: 16720000}})
+
+-- O comando abaixo remove os estados que possuem população menor que 20000000
+db.estatos.remove({populacao: {$lt: 20000000}})

@@ -1,0 +1,46 @@
+show dbs --mostrar todas as bases
+use wm --faz usar o banco wm, ou instancia um banco para ser criado a partir de um banco
+db.createCollection('estados') --cria uma coleção
+show collections --mostra as coleções
+
+-- lemnbrando que o mongoDB é case sensitive, diferente dos bancos relacionais onde dá para criar TABELA ou, tabela ou, Tabela e irá refletir na mesma tabela, no mongo se cria uma tabela diferente para cada nome com caracter diferente. Então Tabela e TABELA são duas tabelas.
+
+db.Estados.drop() --para deletar a tabela, ou collection
+
+db.estados.insert({nome: "Acre", sigla: "AC", regiao: "Norte"})
+db.estados.save({nome: "Alagoas", sigla: "AL", regiao: "Nordeste", populacao: 3322000})
+db.estados.find() --consulta os dados
+db.estados.find().pretty() --consulta os dados e os estrutura em arvores
+db.estados.insert({
+	nome: "Rio de JAneiro",
+	sigla: "RJ",
+	regiao: "Sudeste",
+	cidades:
+		[{ 
+		nome: "Niterói
+		area: 133.
+		populacao: 4875
+		}]
+	})
+
+db.estados.insert({
+	nome: "São Paulo",
+	sigla: "SP",
+	regiao: "Sudeste",
+	cidades: [
+		{_id: ObjectId(), nome: "Campinas", area: "795.7", prefeito: "Jonas Donizette", populacao: 1081000},
+		{_id: ObjectId(), nome: "Guarulhos", populacao: 1325000},
+		{_id: ObjectId(), nome: "Sorocaba", distanciaCapital: 87, populacao: 644919}
+		]
+})
+
+db.estados.findOne() -- para pesquisar o primeiro resultado
+db.estados.findOne({sigla: "RJ"}) -- para passar parametros de busca
+db.estados.find({sigla: "RJ"}).pretty() -- busca com parametros formatada
+
+db.estados.find({$or: [{sigla: "RJ"}, {sigla: "AC"}]}).pretty() -- fazendo buscas com OU
+db.estados.find().skip(1) -- os skip pula uma quantidade de registros
+db.estados.find().skip(1).limit(2) -- limita a quantidade de registros retornada
+
+db.estados.count() -- conta quantos dados possui na tabela
+db.estados.find({sigla: "SP"}, {nome: 1, sigla: 1, _id: 0})

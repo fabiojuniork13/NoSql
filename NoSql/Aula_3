@@ -1,0 +1,44 @@
+-- Nessa consulta vamos colocar as empresas relacionadas com os estados que já criamos
+db.estatos.find().pretty() -- para retornar todos os estados, pegamos o id inserirmos no proximo comando
+
+db.empresas.insert({
+	nome: "Bradesco",
+	estadosId: ObjectId("<colocamos o id que pegamos no comando anterior>")
+})
+
+db.empresas.find().pretty() -- consultará todas as empresas dessa tabela
+
+db.empresas.insert({
+	nome: "Vale",
+	cidadeId: ObjectId("<colocamos o id que pegamos no comando anterior>")
+})
+
+------------------------//
+USANDO LOOKUP
+------------------------//
+-- Usa se lookup quando se quer trazer valores relacionados a tabela em questão
+
+db.empresas.agregate([
+	{$match: {nome: "Bradesco"}},
+	{$lookup: {
+		from: "estados",
+		localField: "estadosId",
+		foreignField: "_id",
+		as: "estado"
+	}},
+	{$unwid: "$estado"}
+]).pretty()
+
+db.empresas.agregate([
+	{$match: {nome: "Vale"}},
+	{$lookup: {
+		from: "estados",
+		localField: "cidadeId",
+		foreignField: "cidades._id",
+		as: "estado"
+	}},
+	{$unwind: "$estado"}
+	{$unwind: "$estado.cidades"},
+	{$addFields: { mesmaCidade: {$cmp: ["estado.cidades.id", "$cidadeId"]} } },
+	{$match: { mesmaCidade: 0}},
+]).pretty()
